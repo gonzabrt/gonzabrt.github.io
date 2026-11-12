@@ -1,38 +1,63 @@
-// Menú móvil, año del pie y animaciones al entrar en pantalla.
-const menuToggle = document.querySelector('.menu-toggle');
+
+const menuButton = document.querySelector('.menu-toggle');
 const nav = document.querySelector('.nav');
 
-if (menuToggle && nav) {
-  menuToggle.addEventListener('click', () => {
+// Menú para celulares
+if (menuButton && nav) {
+  menuButton.addEventListener('click', () => {
     const isOpen = nav.classList.toggle('open');
-    menuToggle.setAttribute('aria-expanded', String(isOpen));
-    menuToggle.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
+    menuButton.setAttribute('aria-expanded', String(isOpen));
+    menuButton.setAttribute('aria-label', isOpen ? 'Cerrar menú' : 'Abrir menú');
   });
 
-  nav.querySelectorAll('a').forEach(link => {
+  nav.querySelectorAll('a').forEach((link) => {
     link.addEventListener('click', () => {
       nav.classList.remove('open');
-      menuToggle.setAttribute('aria-expanded', 'false');
-      menuToggle.setAttribute('aria-label', 'Abrir menú');
+      menuButton.setAttribute('aria-expanded', 'false');
+      menuButton.setAttribute('aria-label', 'Abrir menú');
     });
   });
 }
 
-const year = document.getElementById('year');
-if (year) year.textContent = new Date().getFullYear();
+// Año automático
+const year = document.querySelector('#year');
+if (year) {
+  year.textContent = new Date().getFullYear();
+}
 
-const revealSections = document.querySelectorAll('.reveal-section');
+// Barra de progreso
+const progress = document.createElement('div');
+progress.className = 'scroll-progress';
+document.body.appendChild(progress);
+
+function updateProgress() {
+  const scrollable =
+    document.documentElement.scrollHeight - window.innerHeight;
+
+  const percentage = scrollable > 0
+    ? (window.scrollY / scrollable) * 100
+    : 0;
+
+  progress.style.width = `${percentage}%`;
+}
+
+window.addEventListener('scroll', updateProgress, { passive: true });
+updateProgress();
+
+// Animaciones al entrar en pantalla
+const sections = document.querySelectorAll('.reveal-section');
+
 if ('IntersectionObserver' in window) {
-  const observer = new IntersectionObserver((entries, currentObserver) => {
-    entries.forEach(entry => {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
       if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-        currentObserver.unobserve(entry.target);
+        entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
       }
     });
   }, { threshold: 0.12 });
 
-  revealSections.forEach(section => observer.observe(section));
+  sections.forEach((section) => observer.observe(section));
 } else {
-  revealSections.forEach(section => section.classList.add('is-visible'));
+  sections.forEach((section) => section.classList.add('visible'));
 }
